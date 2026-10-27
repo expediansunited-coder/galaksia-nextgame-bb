@@ -913,8 +913,7 @@ def post_to_meta(image_path, caption, image_url=None, story_url=None):
     user_token = cfg['page_access_token']
 
     if not image_url:
-        print('    [meta] ERROR: no public image_url provided; cannot post.')
-        return
+        raise RuntimeError('no public image_url provided; cannot post.')
 
     try:
         token = _get_page_token(page_id, user_token)
@@ -923,12 +922,14 @@ def post_to_meta(image_path, caption, image_url=None, story_url=None):
         token = user_token
 
     ig_token = user_token
+    errors = []
 
     try:
         _fb_page_photo(page_id, token, image_url, caption, published=True)
         print('    [meta] FB feed OK')
     except Exception as e:
         print('    [meta] FB feed FAILED: %s' % e)
+        errors.append('FB feed failed: %s' % e)
 
     try:
         su = story_url or image_url
@@ -937,18 +938,24 @@ def post_to_meta(image_path, caption, image_url=None, story_url=None):
         print('    [meta] FB story OK')
     except Exception as e:
         print('    [meta] FB story FAILED: %s' % e)
+        errors.append('FB story failed: %s' % e)
 
     try:
         _ig_publish(ig_id, ig_token, image_url, caption=caption, is_story=False)
         print('    [meta] IG feed OK')
     except Exception as e:
         print('    [meta] IG feed FAILED: %s' % e)
+        errors.append('IG feed failed: %s' % e)
 
     try:
         _ig_publish(ig_id, ig_token, story_url or image_url, is_story=True)
         print('    [meta] IG story OK')
     except Exception as e:
         print('    [meta] IG story FAILED: %s' % e)
+        errors.append('IG story failed: %s' % e)
+
+    if errors:
+        raise RuntimeError(' | '.join(errors))
 
 
 # ============================================================
@@ -1243,7 +1250,7 @@ def run_basketball_next_match_generator():
         )
 
         if POST_ONLY:
-            repo_raw = 'https://raw.githubusercontent.com/expediansunited-coder/galaksia-basketball-nextgame/main/'
+            repo_raw = 'https://raw.githubusercontent.com/expediansunited-coder/galaksia-nextgame-bb/main/'
             feed_url = repo_raw + out_path.replace('\\', '/')
             story_url = repo_raw + story_path.replace('\\', '/')
 
