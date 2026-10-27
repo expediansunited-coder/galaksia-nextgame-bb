@@ -1,0 +1,55 @@
+name: Daily Next Game Post
+
+on:
+  schedule:
+    - cron: '17 3 * * *'   # 11:00 Prague (summer) / 10:00 (winter)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write secret files
+        run: |
+          echo '${{ secrets.CREDENTIALS_JSON }}' > credentials.json
+          echo '${{ secrets.META_CONFIG_JSON }}' > meta_config.json
+
+      - name: Generate images
+        run: python "next match bb.py" --generate-only
+
+      - name: Commit generated images
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add output/*.png 2>/dev/null || echo "no images to add"
+          git commit -m "Add generated match images" || echo "nothing to commit"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
+
+      - name: Post to Meta
+        run: python "next match bb.py" --post-only
+
+      - name: Remove generated images
+        run: |
+          git rm -f output/*.png || echo "nothing to remove"
+          git commit -m "Clean up generated images" || echo "nothing to commit"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
