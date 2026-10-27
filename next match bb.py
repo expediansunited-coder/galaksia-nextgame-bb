@@ -1252,6 +1252,9 @@ def run_basketball_next_match_generator():
 
             try:
                 post_to_meta(out_path, caption, image_url=feed_url, story_url=story_url)
+                with_retry(fx['ws'].update_cell, i, FX_STATUS + 1, 'Next Game Posted')
+                fx['status'] = 'Next Game Posted'
+                print('  status updated: Next Game Posted')
             except Exception as e:
                 errors.append('%s: Meta posting failed: %s' % (tag, e))
         else:
@@ -1268,7 +1271,7 @@ POST_ONLY = '--post-only' in sys.argv
 
 if not GENERATE_ONLY and not POST_ONLY:
     GENERATE_ONLY = True
-    POST_ONLY = False
+    POST_ONLY = True
 
 if __name__ == '__main__':
     run_basketball_next_match_generator()
