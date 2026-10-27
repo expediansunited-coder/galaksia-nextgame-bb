@@ -1,0 +1,6 @@
+gspread
+oauth2client
+google-api-python-client
+Pillow
+pillow-heif
+requests
