@@ -1186,7 +1186,7 @@ def run_basketball_next_match_generator():
                 if not lf:
                     errors.append('%s: NO LOGO found for opponent "%s" - using placeholder.'
                                   % (tag, opp_name))
-                    lf = find_by_basename(logo_files, 'no logo')
+                    lf = find_by_basename(logo_files, 'no logo bb')
 
                 if lf:
                     try:
@@ -1198,7 +1198,7 @@ def run_basketball_next_match_generator():
                                       % (tag, opp_name, e))
                 else:
                     opp_logo_cache[key] = None
-                    errors.append('%s: "no logo" placeholder also not found.' % tag)
+                    errors.append('%s: "no logo bb" placeholder also not found.' % tag)
 
             opp_logo = opp_logo_cache[key]
 
