@@ -585,6 +585,11 @@ def header_text(match_type, league, round_num):
     if mt == 'friendly':
         return 'FRIENDLY'
 
+    if mt == 'cup':
+        if round_num:
+            return 'PBS CUP - ROUND %s' % round_num
+        return 'CUP'
+
     base = (league or '').strip().upper()
 
     if round_num:
